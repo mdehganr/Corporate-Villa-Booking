@@ -1,0 +1,45 @@
+<p>calender works!</p>
+Hi There,
+Welocme to Lacasa booking system, please check below calander to see the avaibility, you can wait list the booked dates,
+so you will be notified whenever the primary requestor cancels.
+
+Booked Dates:
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>title</th>
+                <th>from</th>
+                <th>to</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td> {{bookingHistory[0].id}}</td>
+                <td> {{bookingHistory[0].title}}</td>
+                <td> {{bookingHistory[0].from.toDateString()}}</td>
+                <td> {{bookingHistory[0].to.toDateString()}}</td>
+            </tr>
+            <tr>
+                <td> {{bookingHistory[1].id}}</td>
+                <td> {{bookingHistory[1].title}}</td>
+                <td> {{bookingHistory[1].from.toDateString()}}</td>
+                <td> {{bookingHistory[1].to.toDateString()}}</td>
+            </tr>
+            <tr>
+                <td> {{bookingHistory[2].id}}</td>
+                <td> {{bookingHistory[2].title}}</td>
+                <td> {{bookingHistory[2].from.toDateString()}}</td>
+                <td> {{bookingHistory[2].to.toDateString()}}</td>
+            </tr>
+            <tr>
+                <td> {{bookingHistory[3].id}}</td>
+                <td> {{bookingHistory[3].title}}</td>
+                <td> {{bookingHistory[3].from.toDateString()}}</td>
+                <td> {{bookingHistory[3].to.toDateString()}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
