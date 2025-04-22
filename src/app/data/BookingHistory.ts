@@ -4,13 +4,15 @@ export class BookingHistory {
     from: Date;
     to: Date;
     guests: Guest[];
+    waitLists: WaitList[];
 
-    constructor(id: number, from: Date, to: Date, guests: Guest[], title?: string) {
+    constructor(id: number, from: Date, to: Date, guests: Guest[], waitLists: WaitList[], title?: string) {
         this.id = id;
         this.title = title;
         this.from = from;
         this.to = to;
         this.guests = guests;
+        this.waitLists = waitLists;
     }
 }
 
@@ -21,5 +23,15 @@ export class Guest {
     constructor(fullName: string, age: number) {
         this.fullName = fullName;
         this.age = age;
+    }
+}
+
+export class WaitList {
+    id: number;
+    guestName: string;
+
+    constructor(id: number, guestName: string) {
+        this.id = id;
+        this.guestName = guestName;
     }
 }
