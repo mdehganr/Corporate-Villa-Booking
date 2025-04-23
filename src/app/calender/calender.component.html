@@ -1,40 +1,5 @@
 <div class="container">
-    <!-- <div class="card">
-        <p-table [value]="products" [tableStyle]="{'min-width': '60rem'}">
-            <ng-template #header>
-                <tr>
-                    <th pSortableColumn="code" style="width:20%">
-                        Code <p-sortIcon field="code" />
-                    </th>
-                    <th pSortableColumn="name" style="width:20%">
-                        Name <p-sortIcon field="name" />
-                    </th>
-                    <th pSortableColumn="category" style="width:20%">
-                        Category <p-sortIcon field="category" />
-                    </th>
-                    <th pSortableColumn="quantity" style="width:20%">
-                        Quantity <p-sortIcon field="quantity" />
-                    </th>
-                </tr>
-            </ng-template>
-            <ng-template #body let-product>
-                <tr>
-                    <td>{{ product.code }}</td>
-                    <td>{{ product.name }}</td>
-                    <td>{{ product.category }}</td>
-                    <td>{{ product.quantity }}</td>
-                </tr>
-            </ng-template>
-        </p-table>
-    </div> -->
-
-
-
-
-
-
-
-    <div class="row">
+    <div class="row  pt-5">
         <H1>
             Welcome to Lacasa Booking System
         </H1>
@@ -48,6 +13,26 @@
             Welocme to Lacasa booking system, please check below calander to see the avaibility, you can wait list the
             booked dates, so you will be notified whenever the primary requestor cancels.
         </h4>
+        <hr />
+    </div>
+
+
+
+    <div class="row">
+        <p>
+            Please select the range that you which to book Lacasa, and we will notify you if the dates are.
+        </p>
+        <mat-form-field>
+            <mat-label>Enter a date range</mat-label>
+            <mat-date-range-input [rangePicker]="picker">
+                <input matStartDate placeholder="Start date">
+                <input matEndDate placeholder="End date">
+            </mat-date-range-input>
+            <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-date-range-picker #picker></mat-date-range-picker>
+        </mat-form-field>
+
         <hr />
     </div>
     Booked Dates:
@@ -67,40 +52,15 @@
                 <tr *ngFor="let bookedItem of bookingHistory">
                     <td> {{bookedItem.id}}</td>
                     <td> {{bookedItem.title}}</td>
-                    <td> {{bookedItem.from.toDateString()}}</td>
-                    <td> {{bookedItem.to.toDateString()}}</td>
-                    <td> {{bookedItem.waitLists[0].guestName}}</td>
-                </tr>
-                <!-- <tr>
-                    <td> {{bookingHistory[0].id}}</td>
-                    <td> {{bookingHistory[0].title}}</td>
-                    <td> {{bookingHistory[0].from.toDateString()}}</td>
-                    <td> {{bookingHistory[0].to.toDateString()}}</td>
-                    <td> {{bookingHistory[0].waitLists[1].guestName}}</td>
-                </tr>
-                <tr>
-                    <td> {{bookingHistory[1].id}}</td>
-                    <td> {{bookingHistory[1].title}}</td>
-                    <td> {{bookingHistory[1].from.toDateString()}}</td>
-                    <td> {{bookingHistory[1].to.toDateString()}}</td>
-                    <td> {{bookingHistory[1].waitLists[0].guestName}}</td>
-                </tr>
-                <tr>
-                    <td> {{bookingHistory[2].id}}</td>
-                    <td> {{bookingHistory[2].title}}</td>
-                    <td> {{bookingHistory[2].from.toDateString()}}</td>
-                    <td> {{bookingHistory[2].to.toDateString()}}</td>
-                    <td> {{bookingHistory[2].waitLists[0].guestName}}</td>
-                </tr>
-                <tr>
-                    <td> {{bookingHistory[3].id}}</td>
-                    <td> {{bookingHistory[3].title}}</td>
-                    <td> {{bookingHistory[3].from.toDateString()}}</td>
-                    <td> {{bookingHistory[3].to.toDateString()}}</td>
-                    <td> {{bookingHistory[3].waitLists[0].guestName}}</td>
-                </tr> -->
+                    <td> {{bookedItem.from| date:'longDate' }}</td>
+                    <td> {{bookedItem.to | date:'longDate'}}</td>
 
+                    <td> {{bookedItem.guests[0].fullName}} </td>
+                </tr>
             </tbody>
         </table>
     </div>
+
+    <br />
+
 </div>

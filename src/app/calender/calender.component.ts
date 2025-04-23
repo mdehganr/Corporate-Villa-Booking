@@ -1,50 +1,39 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { BookingHistory, Guest, WaitList } from '../data/BookingHistory';
 import { ButtonModule } from 'primeng/button';
-import { Product } from '../data/Product';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
+import { BookingHistoryService } from '../services/booking-history.service';
+import { MatTableModule } from '@angular/material/table';
+
+import { provideNativeDateAdapter } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
+import { MatNativeDateModule } from '@angular/material/core';
 
 
 @Component({
   selector: 'app-calender',
-  imports: [ButtonModule, TableModule, CommonModule],
+  imports: [ButtonModule, TableModule, CommonModule, MatTableModule, MatDatepickerModule, MatNativeDateModule, MatFormFieldModule],
   templateUrl: './calender.component.html',
   styleUrl: './calender.component.scss'
 })
 
-export class CalenderComponent {
-  products: Product[] = [
-    {
-      id: 1000,
-      code: 'f230fh0g3',
-      name: 'Bamboo Watch',
-      description: 'Product Description',
-      image: 'bamboo-watch.jpg',
-      price: 65,
-      category: 'Accessories',
-      quantity: 24,
-      inventoryStatus: 'INSTOCK',
-      rating: 5
-    },
-    {
-      id: 324,
-      code: 'f230fh0g3',
-      name: 'Bamboo Watch',
-      description: 'Product Description',
-      image: 'bamboo-watch.jpg',
-      price: 65,
-      category: 'Accessories',
-      quantity: 24,
-      inventoryStatus: 'INSTOCK',
-      rating: 5
-    },
-  ];
+export class CalenderComponent implements OnInit {
 
-  bookingHistory: BookingHistory[] = [
-    { id: 1, title: "Darrell", from: new Date(), to: new Date(), guests: [new Guest("Darrell", 30), new Guest("John", 25)], waitLists: [new WaitList(1, "Darrell"), new WaitList(2, "John")] },
-    { id: 2, title: "Josh", from: new Date(), to: new Date(), guests: [new Guest("Josh", 25), new Guest("Vahed", 19)], waitLists: [new WaitList(1, "Bella"), new WaitList(2, "Sara")] },
-  ]
+  bookingHistory: BookingHistory[] = []
+
+  constructor(private bookingHistoryService: BookingHistoryService) { }
+
+  ngOnInit() {
+    this.getBookingHistory();
+  }
 
 
+  getBookingHistory() {
+    this.bookingHistoryService.getBookingHistory()
+      .subscribe(bookingHistory => this.bookingHistory = bookingHistory);
+  }
 }
+
