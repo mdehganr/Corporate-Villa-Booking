@@ -6,13 +6,11 @@
 
         <br />
         <hr />
-        <h2>
-            Hello,
-        </h2>
-        <h4>
+
+        <p>
             Welocme to Lacasa booking system, please check below calander to see the avaibility, you can wait list the
             booked dates, so you will be notified whenever the primary requestor cancels.
-        </h4>
+        </p>
         <hr />
     </div>
 
@@ -20,18 +18,24 @@
 
     <div class="row">
         <p>
-            Please select the range that you which to book Lacasa, and we will notify you if the dates are.
+            <b>Please select the date range you wish to book at LaCasa and fill out the associated form. If your
+                selected dates are already booked, you
+                will be placed on a waitlist, which you can view in the table below.
+            </b>
+            <br>Thank you for choosing LaCasa, and we wish you safe travels.
         </p>
-        <mat-form-field>
-            <mat-label>Enter a date range</mat-label>
-            <mat-date-range-input [rangePicker]="picker">
-                <input matStartDate placeholder="Start date">
-                <input matEndDate placeholder="End date">
-            </mat-date-range-input>
-            <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-date-range-picker #picker></mat-date-range-picker>
-        </mat-form-field>
+        <div class="col-md-4">
+            <mat-form-field>
+                <mat-label>Enter a date range</mat-label>
+                <mat-date-range-input [rangePicker]="picker">
+                    <input matStartDate placeholder="Start date">
+                    <input matEndDate placeholder="End date">
+                </mat-date-range-input>
+                <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                <mat-date-range-picker #picker></mat-date-range-picker>
+            </mat-form-field>
+        </div>
 
         <hr />
     </div>
