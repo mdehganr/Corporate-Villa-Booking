@@ -25,18 +25,26 @@
             </b>
             <br>Thank you for choosing LaCasa, and we wish you safe travels.
         </p>
-        <div class="col-md-4">
-            <mat-form-field>
+        <form class="col-md-4" [formGroup]="range">
+            <mat-form-field appearance="fill">
                 <mat-label>Enter a date range</mat-label>
                 <mat-date-range-input [rangePicker]="picker">
-                    <input matStartDate placeholder="Start date">
-                    <input matEndDate placeholder="End date">
+                    <input matStartDate formControlName="start" placeholder="Start date">
+                    <input matEndDate formControlName="end" placeholder="End date">
                 </mat-date-range-input>
-                <mat-hint>MM/DD/YYYY – MM/DD/YYYY</mat-hint>
+                <mat-hint>Start Date – End Date</mat-hint>
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
-        </div>
+        </form>
+       
+
+          <!-- Optional: Display Dates -->
+<p>Start: {{ range.get('start')?.value | date }}</p>
+<p>End: {{ range.get('end')?.value | date }}</p>
+
+
+<button (click)="printDates()">Get Dates</button>
 
         <hr />
     </div>
