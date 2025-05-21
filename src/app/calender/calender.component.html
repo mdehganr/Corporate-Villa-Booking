@@ -32,19 +32,18 @@
                     <input matStartDate formControlName="start" placeholder="Start date">
                     <input matEndDate formControlName="end" placeholder="End date">
                 </mat-date-range-input>
-                <mat-hint>Start Date – End Date</mat-hint>
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
         </form>
-       
-
-          <!-- Optional: Display Dates -->
-<p>Start: {{ range.get('start')?.value | date }}</p>
-<p>End: {{ range.get('end')?.value | date }}</p>
 
 
-<button (click)="printDates()">Get Dates</button>
+        <!-- Optional: Display Dates -->
+        <p>Your check-in date: {{ range.get('start')?.value | date }}</p>
+        <p>Your check-out date: {{ range.get('end')?.value | date }}</p>
+
+
+        <input type="button" (click)="book()" class="btn btn-primary col-md-2" value="Book Lacasa" />
 
         <hr />
     </div>
@@ -62,13 +61,13 @@
             </thead>
 
             <tbody>
-                <tr *ngFor="let bookedItem of bookingHistory">
+                <tr *ngFor="let bookedItem of booking">
                     <td> {{bookedItem.id}}</td>
-                    <td> {{bookedItem.title}}</td>
-                    <td> {{bookedItem.from| date:'longDate' }}</td>
-                    <td> {{bookedItem.to | date:'longDate'}}</td>
+                    <td> {{bookedItem.employeeEmail}}</td>
+                    <td> {{bookedItem.startDate| date:'longDate' }}</td>
+                    <td> {{bookedItem.endDate | date:'longDate'}}</td>
 
-                    <td> {{bookedItem.guests[0].fullName}} </td>
+                    <!-- <td> {{bookedItem.guests[0].fullName}} </td> -->
                 </tr>
             </tbody>
         </table>
