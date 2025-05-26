@@ -12,17 +12,20 @@ export class BookingHistoryService {
 
   constructor(private http: HttpClient) { }
 
+  // getBookingHistory(): Observable<Booking[]> {
+  //   return this.http.get<Booking[]>(`${this.apiUrl}/api/Booking`).pipe(
+  //     map(bookings => bookings.map(b => ({
+  //       ...b,
+  //       from: new Date(b.startDate),
+  //       to: new Date(b.endDate)
+  //     })))
+  //   );
+  // }
   getBookingHistory(): Observable<Booking[]> {
-    return this.http.get<Booking[]>(`${this.apiUrl}/api/Booking`).pipe(
-      map(bookings => bookings.map(b => ({
-        ...b,
-        from: new Date(b.startDate),
-        to: new Date(b.endDate)
-      })))
-    );
+    return this.http.get<Booking[]>(`${this.apiUrl}/api/booking`);
   }
-
   saveBooking(booking: Booking): Observable<Booking> {
+    console.log('Booking:', booking);
     return this.http.post<Booking>(`${this.apiUrl}/api/Booking`, booking, { headers: { 'Content-Type': 'application/json' } });
   }
 }

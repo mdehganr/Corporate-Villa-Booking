@@ -3,10 +3,8 @@
         <H1>
             Welcome to Lacasa Booking System
         </H1>
-
         <br />
         <hr />
-
         <p>
             Welocme to Lacasa booking system, please check below calander to see the avaibility, you can wait list the
             booked dates, so you will be notified whenever the primary requestor cancels.
@@ -25,7 +23,34 @@
             </b>
             <br>Thank you for choosing LaCasa, and we wish you safe travels.
         </p>
-        <form class="col-md-4" [formGroup]="range">
+        <form class="col-md-4" [formGroup]="bookingForm">
+
+            <div class="form-group">
+                <label>Your full name</label>
+                <input type="fullname" class="form-control" id="fullName" formControlName="fullName"
+                    aria-describedby="emailHelp" placeholder="Enter your full name">
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="exampleInputEmail">Your email address</label>
+                <input type="employeeEmail" class="form-control" formControlName="employeeEmail" id="employeeEmail"
+                    aria-describedby="emailHelp" placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+                    else.</small>
+            </div>
+            <br />
+
+            <label for="bookingType">Number of Guests</label>
+            <select type="guest" class="form-control" formControlName="guest" id="guest">
+                <option value="One">One</option>
+                <option value="Two">Two</option>
+                <option value="Three">Three</option>
+                <option value="Four">Four</option>
+                <option value="Five">Five</option>
+                <option value="Six">Six</option>
+            </select>
+
+            <br />
             <mat-form-field appearance="fill">
                 <mat-label>Enter a date range</mat-label>
                 <mat-date-range-input [rangePicker]="picker">
@@ -35,20 +60,24 @@
                 <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
                 <mat-date-range-picker #picker></mat-date-range-picker>
             </mat-form-field>
+            <br />
+            <!-- Optional: Display Dates -->
+            <p>Your check-in date: {{ bookingForm.get('start')?.value | date }}</p>
+            <p>Your check-out date: {{ bookingForm.get('end')?.value | date }}</p>
         </form>
 
 
-        <!-- Optional: Display Dates -->
-        <p>Your check-in date: {{ range.get('start')?.value | date }}</p>
-        <p>Your check-out date: {{ range.get('end')?.value | date }}</p>
 
 
-        <input type="button" (click)="book()" class="btn btn-primary col-md-2" value="Book Lacasa" />
+        <div>
 
-        <hr />
+            <input type="button" (click)="book()" class="btn btn-primary col-md-2" value="Book Lacasa" />
+        </div>
+        <br />
+
     </div>
-    Booked Dates:
-    <div class="table-responsive">
+    <hr />
+    <!-- <div class="table-responsive">
         <table class="table table-bordered table-striped table-hover">
             <thead class="table-dark">
                 <tr>
@@ -67,10 +96,61 @@
                     <td> {{bookedItem.startDate| date:'longDate' }}</td>
                     <td> {{bookedItem.endDate | date:'longDate'}}</td>
 
-                    <!-- <td> {{bookedItem.guests[0].fullName}} </td> -->
-                </tr>
-            </tbody>
+                     <td> {{bookedItem.guests[0].fullName}} </td>
+    </tr>
+    </tbody>
+    </table>
+</div> -->
+
+    <div class="mat-elevation-z8" style="overflow-x:auto;">
+        <h2 class="mb-3">Current Bookings</h2>
+        <table mat-table [dataSource]="dataSource" matSort class="full-width-table">
+
+
+            <!-- Full Name Column -->
+            <ng-container matColumnDef="fullName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Full Name</th>
+                <td mat-cell *matCellDef="let element"> {{element.fullName}} </td>
+            </ng-container>
+
+            <!-- Employee Email Column -->
+            <ng-container matColumnDef="employeeEmail">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Email</th>
+                <td mat-cell *matCellDef="let element"> {{element.employeeEmail}} </td>
+            </ng-container>
+
+            <!-- Employee Email Column -->
+            <ng-container matColumnDef="guest">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Total Guests</th>
+                <td mat-cell *matCellDef="let element"> {{element.guest}} </td>
+            </ng-container>
+
+            <!-- Start Date Column -->
+            <ng-container matColumnDef="startDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>Start Date</th>
+                <td mat-cell *matCellDef="let element"> {{element.startDate | date:'shortDate'}} </td>
+            </ng-container>
+
+            <!-- End Date Column -->
+            <ng-container matColumnDef="endDate">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>End Date</th>
+                <td mat-cell *matCellDef="let element"> {{element.endDate | date:'shortDate'}} </td>
+            </ng-container>
+            <!-- Action Column -->
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef> Actions </th>
+                <td mat-cell *matCellDef="let element">
+                    <button mat-raised-button color="primary" (click)="onEdit(booking)">Edit</button>
+                    <button mat-raised-button color="warn" (click)="onDelete(booking)">Delete</button>
+                </td>
+            </ng-container>
+
+            <!-- Header and Row Definitions -->
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
         </table>
+
     </div>
 
     <br />
