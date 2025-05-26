@@ -12,8 +12,6 @@
         <hr />
     </div>
 
-
-
     <div class="row">
         <p>
             <b>
@@ -65,43 +63,13 @@
             <p>Your check-in date: {{ bookingForm.get('start')?.value | date }}</p>
             <p>Your check-out date: {{ bookingForm.get('end')?.value | date }}</p>
         </form>
-
-
-
-
+        <!-- Button -->
         <div>
-
             <input type="button" (click)="book()" class="btn btn-primary col-md-2" value="Book Lacasa" />
         </div>
         <br />
-
     </div>
     <hr />
-    <!-- <div class="table-responsive">
-        <table class="table table-bordered table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Title</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Wait list</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <tr *ngFor="let bookedItem of booking">
-                    <td> {{bookedItem.id}}</td>
-                    <td> {{bookedItem.employeeEmail}}</td>
-                    <td> {{bookedItem.startDate| date:'longDate' }}</td>
-                    <td> {{bookedItem.endDate | date:'longDate'}}</td>
-
-                     <td> {{bookedItem.guests[0].fullName}} </td>
-    </tr>
-    </tbody>
-    </table>
-</div> -->
-
     <div class="mat-elevation-z8" style="overflow-x:auto;">
         <h2 class="mb-3">Current Bookings</h2>
         <table mat-table [dataSource]="dataSource" matSort class="full-width-table">
@@ -152,7 +120,5 @@
         </table>
 
     </div>
-
     <br />
-
 </div>
