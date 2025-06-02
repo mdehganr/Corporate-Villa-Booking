@@ -27,7 +27,7 @@ export class WebSocketService {
     private connect(): void {
         try {
             // Replace with your WebSocket server URL
-            this.socket = new WebSocket('ws://localhost:8080/booking-updates');
+            this.socket = new WebSocket('ws://localhost:5114/ws');
 
             this.socket.onopen = () => {
                 console.log('WebSocket connected');
