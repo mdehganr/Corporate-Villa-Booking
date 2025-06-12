@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BookingHistory } from '../data/BookingHistory';
 import { Booking } from '../data/Booking';
 import { Observable, map } from 'rxjs';
+import { BookingResponse } from '../data/BookingResponse';
 
 @Injectable({
   providedIn: 'root'
@@ -24,8 +25,11 @@ export class BookingHistoryService {
   getBookingHistory(): Observable<Booking[]> {
     return this.http.get<Booking[]>(`${this.apiUrl}/api/booking`);
   }
-  saveBooking(booking: Booking): Observable<Booking> {
-    console.log('Booking:', booking);
-    return this.http.post<Booking>(`${this.apiUrl}/api/Booking`, booking, { headers: { 'Content-Type': 'application/json' } });
+  saveBooking(booking: Booking): Observable<BookingResponse> {
+    // Check for date conflicts
+    return this.http.post<BookingResponse>(`${this.apiUrl}/api/booking`, {
+      ...booking,
+      waitlist: booking.waitlist
+    });
   }
 }

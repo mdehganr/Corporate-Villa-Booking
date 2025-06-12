@@ -1,9 +1,26 @@
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
-
-
 /* Importing Bootstrap SCSS file. */
 @import 'bootstrap/scss/bootstrap';
-
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+/* styles.scss */
+.snackbar-success {
+  background-color: #4caf50 !important; /* Green */
+  color: white;
+}
+
+.snackbar-error {
+  background-color: #f44336  !important; /* Red */
+  color: white;
+}
+
+.snackbar-warning {
+  background-color: #ff9800  !important; /* Orange */
+  color: white;
+}
+
+.snackbar-info {
+  background-color: #2196f3  !important; /* Blue */
+  color: white;
+}

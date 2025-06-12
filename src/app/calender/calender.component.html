@@ -66,7 +66,9 @@
             <br />
             <mat-form-field appearance="fill">
                 <mat-label>Enter a date range</mat-label>
-                <mat-date-range-input [rangePicker]="picker" [dateFilter]="dateFilter">
+                <!-- <mat-date-range-input [rangePicker]="picker" [dateFilter]="dateFilter"> -->
+                <mat-date-range-input [rangePicker]="picker">
+
                     <input matStartDate formControlName="start" placeholder="Start date">
                     <input matEndDate formControlName="end" placeholder="End date">
                 </mat-date-range-input>
@@ -145,9 +147,21 @@
                 </td>
             </ng-container>
 
+            <!-- Waitlist Column -->
+            <ng-container matColumnDef="waitlist">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Status </th>
+                <td mat-cell *matCellDef="let booking">
+                    <mat-icon [ngClass]="{'text-warning': booking.waitlist}">
+                        {{booking.waitlist === null ? '' : (booking.waitlist ? 'watch_later' : 'check_circle')}}
+                    </mat-icon>
+                    {{booking.waitlist ? 'On Waitlist' : 'Confirmed'}}
+                </td>
+            </ng-container>
+
             <!-- Header and Row Definitions -->
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [class.highlight-row]="row.isNew"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" [ngClass]="{'waitlist-row': row.waitlist}">
+            </tr>
 
         </table>
 
