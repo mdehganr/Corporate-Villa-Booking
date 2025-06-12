@@ -23,6 +23,8 @@ import { Subscription } from 'rxjs';
 import { BookingResponse } from '../data/BookingResponse';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { WaitlistDialogComponent } from '../shared/waitlist-dialog/waitlist-dialog.component';
+import { MatCalendarCellCssClasses } from '@angular/material/datepicker';
+
 
 @Component({
   selector: 'app-calender',
@@ -50,6 +52,11 @@ export class CalenderComponent implements OnInit, OnDestroy {
     new Date(2025, 5, 25), // May 25, 2025
     new Date(2025, 5, 26), // May 26, 2025
   ];
+  highlightedDateSet = new Set([
+    '2025-06-14',
+    '2025-06-21',
+    '2025-07-01'
+  ]);
 
   bookingForm = new FormGroup({
     fullName: new FormControl('', Validators.required),
@@ -298,4 +305,11 @@ export class CalenderComponent implements OnInit, OnDestroy {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSource.filter = filterValue;
   }
+
+  dateClass = (date: Date): MatCalendarCellCssClasses => {
+    const dateString = date.toDateString();
+    const busyDateStrings = this.busyDates.map(d => d.toDateString());
+
+    return busyDateStrings.includes(dateString) ? 'busy-date' : '';
+  };
 }

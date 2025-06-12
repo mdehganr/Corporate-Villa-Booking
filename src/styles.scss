@@ -24,3 +24,8 @@ body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
   background-color: #2196f3  !important; /* Blue */
   color: white;
 }
+.busy-date .mat-calendar-body-cell-content {
+  background-color: #ff5252 !important;
+  color: white !important;
+  border-radius: 50%;
+}

@@ -44,3 +44,19 @@ td mat-icon {
   color: white !important;
 }
 
+.busy-date {
+  background-color: rgba(255, 0, 0, 0.1) !important;
+  border-radius: 100%;
+
+  &:hover {
+    background-color: rgba(255, 0, 0, 0.2) !important;
+  }
+}
+
+
+  // ::ng-deep .custom-highlight > .mat-calendar-body-cell-content {
+  //   background-color: #ffc107 !important;
+  //   color: black !important;
+  //   border-radius: 50%;
+  // }
+
