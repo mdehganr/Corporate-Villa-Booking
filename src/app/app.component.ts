@@ -7,6 +7,9 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
+import { MatCarouselModule } from '@ngmodule/material-carousel';
+
 
 export interface Product {
   id: string;

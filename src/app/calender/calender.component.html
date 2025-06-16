@@ -19,75 +19,87 @@
     </div>
 
     <div class="row">
-        <p>
-            <b>
-                Please select the date range you wish to book at LaCasa and fill out the associated form. If your
-                selected dates are already booked, you
-                will be placed on a waitlist, which you can view in the table below.
-            </b>
-            <br>Thank you for choosing LaCasa, and we wish you safe travels.
-        </p>
-        <form class="col-md-4" [formGroup]="bookingForm">
+        <div class="col-md-4">
+            <form [formGroup]="bookingForm">
 
-            <div class="form-group">
-                <label>Your full name</label>
-                <input type="text" class="form-control" id="fullName" formControlName="fullName"
-                    aria-describedby="nameHelp" placeholder="Enter your full name" required>
-                <div class="invalid-feedback"
-                    *ngIf="bookingForm.get('fullName')?.invalid && bookingForm.get('fullName')?.touched">
-                    Full name is required.
+                <div class="form-group">
+                    <label>Your full name</label>
+                    <input type="text" class="form-control" id="fullName" formControlName="fullName"
+                        aria-describedby="nameHelp" placeholder="Enter your full name" required>
+                    <div class="invalid-feedback"
+                        *ngIf="bookingForm.get('fullName')?.invalid && bookingForm.get('fullName')?.touched">
+                        Full name is required.
+                    </div>
                 </div>
-            </div>
-            <br />
-            <div class="form-group">
-                <label for="employeeEmail">Your email address</label>
-                <input type="email" class="form-control" formControlName="employeeEmail" id="employeeEmail"
-                    aria-describedby="emailHelp" placeholder="Enter email" required>
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
-                    else.</small>
-                <div class="invalid-feedback"
-                    *ngIf="bookingForm.get('employeeEmail')?.invalid && bookingForm.get('employeeEmail')?.touched">
-                    Please enter a valid email address.
+                <br />
+                <div class="form-group">
+                    <label for="employeeEmail">Your email address</label>
+                    <input type="email" class="form-control" formControlName="employeeEmail" id="employeeEmail"
+                        aria-describedby="emailHelp" placeholder="Enter email" required>
+                    <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+                        else.</small>
+                    <div class="invalid-feedback"
+                        *ngIf="bookingForm.get('employeeEmail')?.invalid && bookingForm.get('employeeEmail')?.touched">
+                        Please enter a valid email address.
+                    </div>
                 </div>
-            </div>
-            <br />
+                <br />
 
-            <label for="guest">Number of Guests</label>
-            <select class="form-control" formControlName="guest" id="guest">
-                <option value="">Select number of guests</option>
-                <option value="One">One</option>
-                <option value="Two">Two</option>
-                <option value="Three">Three</option>
-                <option value="Four">Four</option>
-                <option value="Five">Five</option>
-                <option value="Six">Six</option>
-            </select>
+                <label for="guest">Number of Guests</label>
+                <select class="form-control" formControlName="guest" id="guest">
+                    <option value="">Select number of guests</option>
+                    <option value="One">One</option>
+                    <option value="Two">Two</option>
+                    <option value="Three">Three</option>
+                    <option value="Four">Four</option>
+                    <option value="Five">Five</option>
+                    <option value="Six">Six</option>
+                </select>
 
-            <br />
-            <mat-form-field appearance="fill">
-                <mat-label>Enter a date range</mat-label>
-                <mat-date-range-input [rangePicker]="picker">
+                <br />
+                <mat-form-field appearance="fill">
+                    <mat-label>Enter a date range</mat-label>
+                    <mat-date-range-input [rangePicker]="picker">
 
-                    <input matStartDate formControlName="start" placeholder="Start date">
-                    <input matEndDate formControlName="end" placeholder="End date">
-                </mat-date-range-input>
-                <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-date-range-picker #picker [dateClass]="dateClass"></mat-date-range-picker>
-            </mat-form-field>
-            <br />
-            <!-- Optional: Display Dates -->
-            <p *ngIf="bookingForm.get('start')?.value">Your check-in date: {{ bookingForm.get('start')?.value | date }}
-            </p>
-            <p *ngIf="bookingForm.get('end')?.value">Your check-out date: {{ bookingForm.get('end')?.value | date }}</p>
-        </form>
-        <!-- Button -->
-        <div>
-            <button type="button" (click)="book()" class="btn btn-primary col-md-2" [disabled]="!bookingForm.valid">
-                Book Lacasa
-            </button>
+                        <input matStartDate formControlName="start" placeholder="Start date">
+                        <input matEndDate formControlName="end" placeholder="End date">
+                    </mat-date-range-input>
+                    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-date-range-picker #picker [dateClass]="dateClass"></mat-date-range-picker>
+                </mat-form-field>
+                <br />
+                <!-- Optional: Display Dates -->
+                <p *ngIf="bookingForm.get('start')?.value">Your check-in date: {{ bookingForm.get('start')?.value | date
+                    }}
+                </p>
+                <p *ngIf="bookingForm.get('end')?.value">Your check-out date: {{ bookingForm.get('end')?.value | date }}
+                </p>
+            </form>
         </div>
-        <br />
+
+        <div class="col-md-8">
+            <mat-card class="villa-showcase">
+                <mat-carousel [autoplay]="true" [interval]="5000" color="accent" maxWidth="auto" proportion="25"
+                    slides="5" [loop]="true" [hideArrows]="false" [hideIndicators]="false" [useKeyboard]="true"
+                    [useMouseWheel]="false" orientation="ltr">
+                    <mat-carousel-slide *ngFor="let slide of slides; let i = index" [image]="slide.image"
+                        overlayColor="#00000040" [hideOverlay]="false">
+                        <div class="carousel-caption">
+                            {{ slide.description }}
+                        </div>
+                    </mat-carousel-slide>
+                </mat-carousel>
+            </mat-card>
+        </div>
     </div>
+    <br />
+    <!-- Button -->
+    <div>
+        <button type="button" (click)="book()" class="btn btn-primary col-md-2" [disabled]="!bookingForm.valid">
+            Book Lacasa
+        </button>
+    </div>
+    <br />
     <hr />
     <div class="mat-elevation-z8" style="overflow-x:auto;">
         <div class="table-header">
@@ -172,4 +184,34 @@
 
     </div>
     <br />
+
+    <div class="location-section mt-4">
+        <h2>Location & Directions</h2>
+        <div class="row">
+            <div class="col-md-8">
+                <div class="map-container">
+                    <google-map height="400px" width="100%" [center]="center" [zoom]="15" (mapClick)="click($event)">
+                        <map-marker [position]="center" [title]="'Lacasa Villa'" [options]="markerOptions">
+                        </map-marker>
+                    </google-map>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="location-details">
+                    <h3>Lacasa Villa</h3>
+                    <p><mat-icon>location_on</mat-icon> Lake Country, BC</p>
+                    <div class="direction-buttons">
+                        <a mat-raised-button color="primary" [href]="directionsUrl" target="_blank">
+                            <mat-icon>directions</mat-icon>
+                            Get Directions
+                        </a>
+                        <a mat-raised-button color="accent" [href]="googleMapsUrl" target="_blank">
+                            <mat-icon>map</mat-icon>
+                            View on Google Maps
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

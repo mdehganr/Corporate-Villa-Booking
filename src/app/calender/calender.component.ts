@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, standalone: true } from '@angular/core';
 import { BookingHistory, Guest, WaitList } from '../data/BookingHistory';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -24,19 +24,33 @@ import { BookingResponse } from '../data/BookingResponse';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { WaitlistDialogComponent } from '../shared/waitlist-dialog/waitlist-dialog.component';
 import { MatCalendarCellCssClasses } from '@angular/material/datepicker';
-
+import { GoogleMapsModule } from '@angular/google-maps';
+import { MatCarousel, MatCarouselComponent } from '@ngmodule/material-carousel';
 
 @Component({
   selector: 'app-calender',
-  imports: [
-    ButtonModule, MatSortModule, MatIconModule, MatButtonModule,
-    TableModule, MatInputModule, CommonModule, MatTableModule,
-    MatDatepickerModule, MatNativeDateModule, MatFormFieldModule,
-    ReactiveFormsModule, MatSnackBarModule, MatDialogModule
-  ],
   templateUrl: './calender.component.html',
   styleUrl: './calender.component.scss',
   changeDetection: ChangeDetectionStrategy.Default,
+  standalone: true,
+  imports: [
+    ButtonModule,
+    MatSortModule,
+    MatIconModule,
+    MatButtonModule,
+    TableModule,
+    MatInputModule,
+    CommonModule,
+    MatTableModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatFormFieldModule,
+    ReactiveFormsModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    GoogleMapsModule,
+    MatCarouselComponent
+  ],
 })
 export class CalenderComponent implements OnInit, OnDestroy {
 
@@ -66,6 +80,41 @@ export class CalenderComponent implements OnInit, OnDestroy {
     end: new FormControl(),
     waitlist: new FormControl(false)
   });
+
+  center: google.maps.LatLngLiteral = {
+    lat: 50.11961573885982,
+    lng: -119.5126670181798
+  };
+
+  markerOptions: google.maps.MarkerOptions = {
+    animation: google.maps.Animation.DROP
+  };
+
+  googleMapsUrl = `https://www.google.com/maps?q=${this.center.lat},${this.center.lng}`;
+  directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${this.center.lat},${this.center.lng}`;
+
+  slides = [
+    {
+      image: 'assets/images/villa1.jpg',
+      description: 'Main Villa View'
+    },
+    {
+      image: 'assets/images/villa2.jpg',
+      description: 'Living Room'
+    },
+    {
+      image: 'assets/images/villa3.jpg',
+      description: 'Kitchen'
+    },
+    {
+      image: 'assets/images/villa4.jpg',
+      description: 'Master Bedroom'
+    },
+    {
+      image: 'assets/images/villa5.jpg',
+      description: 'Pool Area'
+    }
+  ];
 
   constructor(
     private bookingHistoryService: BookingHistoryService,
@@ -288,6 +337,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
     this.dataSource.sort = this.sort;
   }
 
+
   getBookingHistory() {
     this.bookingHistoryService.getBookingHistory().subscribe({
       next: (data) => {
@@ -312,4 +362,8 @@ export class CalenderComponent implements OnInit, OnDestroy {
 
     return busyDateStrings.includes(dateString) ? 'busy-date' : '';
   };
+
+  click(event: google.maps.MapMouseEvent) {
+    console.log(event);
+  }
 }
