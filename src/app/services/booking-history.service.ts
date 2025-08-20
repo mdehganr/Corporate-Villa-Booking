@@ -4,6 +4,7 @@ import { BookingHistory } from '../data/BookingHistory';
 import { Booking } from '../data/Booking';
 import { Observable, map } from 'rxjs';
 import { BookingResponse } from '../data/BookingResponse';
+import { BookingStatus } from '../data/BookingStatus';
 
 @Injectable({
   providedIn: 'root'
@@ -36,4 +37,9 @@ export class BookingHistoryService {
   deleteBooking(id: number) {
     return new Error('Method not implemented.');
   }
+
+  UpdateStatus(id: number, status: BookingStatus): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/api/booking/${id}/status`, { status });
+  }
+
 }

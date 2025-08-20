@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { BookingHistory, Guest, WaitList } from '../data/BookingHistory';
+import { BookingStatus } from '../data/BookingStatus';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -27,6 +28,8 @@ import { MatCalendarCellCssClasses } from '@angular/material/datepicker';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MatCardModule } from '@angular/material/card';
 import { CarouselModule } from 'ngx-owl-carousel-o';
+import { formatDate } from '@angular/common';
+
 
 @Component({
   selector: 'app-calender',
@@ -77,7 +80,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
     guest: new FormControl(),
     start: new FormControl(),
     end: new FormControl(),
-    bookingStatus: new FormControl()
+    BookingStatus: new FormControl(BookingStatus.Submitted)
   });
 
   center: google.maps.LatLngLiteral = {
@@ -187,7 +190,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
       case 'DELETE':
         // Remove booking from table
         this.dataSource.data = currentData.filter(b => b.id !== event.booking.id);
-        this.showNotification(`Booking cancelled by ${event.booking.fullName}`, 'error');
+        this.showNotification(`Booking Canceled by ${event.booking.fullName}`, 'error');
         this.updateBusyDates();
         break;
     }
@@ -243,7 +246,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
       this.bookingForm.get('guest')?.value ?? '',
       startDate.toISOString(),
       endDate.toISOString(),
-      this.bookingForm.get('BookingStatus')?.value ?? ''
+      this.bookingForm.get('BookingStatus')?.value ?? BookingStatus.Submitted
     );
 
     this.bookingHistoryService.saveBooking(newBooking).subscribe({
@@ -285,7 +288,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
                 }
               });
             } else {
-              this.showNotification('Booking cancelled', 'info');
+              this.showNotification('Booking Canceled', 'info');
             }
           });
         } else {
@@ -303,14 +306,18 @@ export class CalenderComponent implements OnInit, OnDestroy {
   }
 
   onCancel(booking: Booking) {
-    // Implement cancel functionality
-    if (confirm(`Are you sure you want to cancel the booking for ${booking.fullName} from ${booking.startDate} to ${booking.endDate}?`)) {
-      this.bookingHistoryService.UpdateStatus(booking.id).subscribe({
+
+
+    const start = formatDate(booking.startDate, 'yyyy-MM-dd', 'en-CA');
+    const end = formatDate(booking.endDate, 'yyyy-MM-dd', 'en-CA');
+
+    if (confirm(`Are you sure you want to cancel the booking for ${booking.fullName} from ${start} to ${end}?`)) {
+      this.bookingHistoryService.UpdateStatus(booking.id, BookingStatus.Canceled).subscribe({
         next: () => {
-          this.showNotification('Booking cancelled successfully!', 'success');
+          this.showNotification('Booking Canceled successfully!', 'success');
           this.getBookingHistory();
         },
-        error: (err) => {
+        error: (err: any) => {
           console.error('Failed to cancel booking:', err);
           this.showNotification('Failed to cancel booking', 'error');
         }

@@ -1,3 +1,5 @@
+import { BookingStatus } from './BookingStatus';
+
 export class Booking {
     constructor(
         public id: number,
@@ -6,7 +8,7 @@ export class Booking {
         public guest: string,
         public startDate: string,
         public endDate: string,
-        public BookingStatus: string
+        public BookingStatus: BookingStatus
     ) { }
 }
 
