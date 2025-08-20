@@ -6,7 +6,7 @@ export class Booking {
         public guest: string,
         public startDate: string,
         public endDate: string,
-        public waitlist: boolean = false
+        public BookingStatus: string
     ) { }
 }
 

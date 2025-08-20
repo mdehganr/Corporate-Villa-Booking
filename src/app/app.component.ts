@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { CalenderComponent } from './calender/calender.component';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -7,8 +6,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
 import { CommonModule } from '@angular/common';
-import { NgModule } from '@angular/core';
-import { MatCarouselModule } from '@ngmodule/material-carousel';
+
 
 
 export interface Product {

@@ -27,6 +27,8 @@
     "@popperjs/core": "^2.11.8",
     "@primeng/themes": "^19.0.10",
     "bootstrap": "^5.3.3",
+    "ng-image-slider": "^10.0.0",
+    "ngx-owl-carousel-o": "^20.0.0",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",
     "primeng": "^19.0.10",

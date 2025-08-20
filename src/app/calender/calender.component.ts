@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild, standalone: true } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, ViewChild } from '@angular/core';
 import { BookingHistory, Guest, WaitList } from '../data/BookingHistory';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
@@ -25,7 +25,8 @@ import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { WaitlistDialogComponent } from '../shared/waitlist-dialog/waitlist-dialog.component';
 import { MatCalendarCellCssClasses } from '@angular/material/datepicker';
 import { GoogleMapsModule } from '@angular/google-maps';
-import { MatCarousel, MatCarouselComponent } from '@ngmodule/material-carousel';
+import { MatCardModule } from '@angular/material/card';
+import { CarouselModule } from 'ngx-owl-carousel-o';
 
 @Component({
   selector: 'app-calender',
@@ -49,7 +50,9 @@ import { MatCarousel, MatCarouselComponent } from '@ngmodule/material-carousel';
     MatSnackBarModule,
     MatDialogModule,
     GoogleMapsModule,
-    MatCarouselComponent
+    MatCardModule,
+    CarouselModule,
+
   ],
 })
 export class CalenderComponent implements OnInit, OnDestroy {
@@ -63,14 +66,10 @@ export class CalenderComponent implements OnInit, OnDestroy {
   isConnected = false;
 
   busyDates: Date[] = [
-    new Date(2025, 5, 25), // May 25, 2025
-    new Date(2025, 5, 26), // May 26, 2025
+    new Date(2025, 5, 1), // May 25, 2025
+    new Date(2025, 5, 2), // May 26, 2025
   ];
-  highlightedDateSet = new Set([
-    '2025-06-14',
-    '2025-06-21',
-    '2025-07-01'
-  ]);
+
 
   bookingForm = new FormGroup({
     fullName: new FormControl('', Validators.required),
@@ -78,7 +77,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
     guest: new FormControl(),
     start: new FormControl(),
     end: new FormControl(),
-    waitlist: new FormControl(false)
+    bookingStatus: new FormControl()
   });
 
   center: google.maps.LatLngLiteral = {
@@ -95,26 +94,23 @@ export class CalenderComponent implements OnInit, OnDestroy {
 
   slides = [
     {
-      image: 'assets/images/villa1.jpg',
+      image: 'assets/images/LaCasa1.jpg',
+      thumbImage: 'assets/images/LaCasa1.jpg',
+      alt: 'Main Villa View',
+      title: 'Main Villa View',
       description: 'Main Villa View'
     },
     {
-      image: 'assets/images/villa2.jpg',
+      image: 'assets/images/LaCasa2.jpg',
+      thumbImage: 'assets/images/LaCasa2.jpg',
+      alt: 'Living Room',
+      title: 'Living Room',
       description: 'Living Room'
-    },
-    {
-      image: 'assets/images/villa3.jpg',
-      description: 'Kitchen'
-    },
-    {
-      image: 'assets/images/villa4.jpg',
-      description: 'Master Bedroom'
-    },
-    {
-      image: 'assets/images/villa5.jpg',
-      description: 'Pool Area'
     }
+    // Add more images as needed, following the same structure
   ];
+
+  currentSlide = 0;
 
   constructor(
     private bookingHistoryService: BookingHistoryService,
@@ -225,17 +221,6 @@ export class CalenderComponent implements OnInit, OnDestroy {
     this.snackBar.open(message, 'Close', config);
   }
 
-  // dateFilter = (date: Date | null): boolean => {
-  //   if (!date) return false;
-
-  //   const busyDateStrings = this.busyDates.map(d =>
-  //     new Date(d.getFullYear(), d.getMonth(), d.getDate()).toDateString()
-  //   );
-
-  //   const current = new Date(date.getFullYear(), date.getMonth(), date.getDate()).toDateString();
-
-  //   return !busyDateStrings.includes(current);
-  // };
 
   book() {
     const startDate: Date = this.bookingForm.get('start')?.value;
@@ -258,7 +243,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
       this.bookingForm.get('guest')?.value ?? '',
       startDate.toISOString(),
       endDate.toISOString(),
-      this.bookingForm.get('waitlist')?.value ?? false
+      this.bookingForm.get('BookingStatus')?.value ?? ''
     );
 
     this.bookingHistoryService.saveBooking(newBooking).subscribe({
@@ -317,21 +302,21 @@ export class CalenderComponent implements OnInit, OnDestroy {
     this.showNotification('Edit functionality to be implemented', 'info');
   }
 
-  // onDelete(booking: Booking) {
-  //   if (confirm(`Are you sure you want to delete the booking for ${booking.fullName}?`)) {
-  //     this.bookingHistoryService.deleteBooking(booking.id).subscribe({
-  //       next: () => {
-  //         this.showNotification('Booking deleted successfully!', 'success');
-  //         // Real-time update will handle removal from table
-  //         this.getBookingHistory();
-  //       },
-  //       error: (err) => {
-  //         console.error('Failed to delete booking:', err);
-  //         this.showNotification('Failed to delete booking', 'error');
-  //       }
-  //     });
-  //   }
-  // }
+  onCancel(booking: Booking) {
+    // Implement cancel functionality
+    if (confirm(`Are you sure you want to cancel the booking for ${booking.fullName} from ${booking.startDate} to ${booking.endDate}?`)) {
+      this.bookingHistoryService.UpdateStatus(booking.id).subscribe({
+        next: () => {
+          this.showNotification('Booking cancelled successfully!', 'success');
+          this.getBookingHistory();
+        },
+        error: (err) => {
+          console.error('Failed to cancel booking:', err);
+          this.showNotification('Failed to cancel booking', 'error');
+        }
+      });
+    }
+  }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
@@ -365,5 +350,13 @@ export class CalenderComponent implements OnInit, OnDestroy {
 
   click(event: google.maps.MapMouseEvent) {
     console.log(event);
+  }
+
+  nextSlide() {
+    this.currentSlide = (this.currentSlide + 1) % this.slides.length;
+  }
+
+  prevSlide() {
+    this.currentSlide = (this.currentSlide - 1 + this.slides.length) % this.slides.length;
   }
 }

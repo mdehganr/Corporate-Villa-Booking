@@ -9,6 +9,7 @@ import { BookingResponse } from '../data/BookingResponse';
   providedIn: 'root'
 })
 export class BookingHistoryService {
+
   private apiUrl = "http://localhost:5114"; // Replace with your API URL
 
   constructor(private http: HttpClient) { }
@@ -29,7 +30,10 @@ export class BookingHistoryService {
     // Check for date conflicts
     return this.http.post<BookingResponse>(`${this.apiUrl}/api/booking`, {
       ...booking,
-      waitlist: booking.waitlist
+      waitlist: booking.BookingStatus
     });
+  }
+  deleteBooking(id: number) {
+    return new Error('Method not implemented.');
   }
 }
