@@ -64,6 +64,8 @@ export class CalenderComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<Booking>();
   @ViewChild(MatSort) sort!: MatSort;
 
+  isAdmin = true; // TODO: This should be set based on your authentication logic
+
   booking: Booking[] = [];
   private subscriptions: Subscription[] = [];
   isConnected = false;
@@ -305,9 +307,25 @@ export class CalenderComponent implements OnInit, OnDestroy {
     this.showNotification('Edit functionality to be implemented', 'info');
   }
 
+  onConfirm(booking: Booking) {
+    const start = formatDate(booking.startDate, 'yyyy-MM-dd', 'en-CA');
+    const end = formatDate(booking.endDate, 'yyyy-MM-dd', 'en-CA');
+
+    if (confirm(`Are you sure you want to confirm the booking for ${booking.fullName} from ${start} to ${end}?`)) {
+      this.bookingHistoryService.UpdateStatus(booking.id, BookingStatus.Confirmed).subscribe({
+        next: () => {
+          this.showNotification('Booking confirmed successfully!', 'success');
+          this.getBookingHistory();
+        },
+        error: (err: any) => {
+          console.error('Failed to confirm booking:', err);
+          this.showNotification('Failed to confirm booking', 'error');
+        }
+      });
+    }
+  }
+
   onCancel(booking: Booking) {
-
-
     const start = formatDate(booking.startDate, 'yyyy-MM-dd', 'en-CA');
     const end = formatDate(booking.endDate, 'yyyy-MM-dd', 'en-CA');
 
