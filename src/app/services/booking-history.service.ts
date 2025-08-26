@@ -31,7 +31,8 @@ export class BookingHistoryService {
     // Check for date conflicts
     return this.http.post<BookingResponse>(`${this.apiUrl}/api/booking`, {
       ...booking,
-      waitlist: booking.BookingStatus
+      Status: booking.BookingStatus,
+      waitlist: BookingStatus.Waitlisted,
     });
   }
   deleteBooking(id: number) {

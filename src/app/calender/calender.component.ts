@@ -267,7 +267,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
           ? err.error
           : err.error?.message || 'Failed to create booking';
 
-        if (err.error === "These dates are already booked") {
+        if (err.error === "Requested dates overlap an existing booking.") {
           const dialogRef = this.dialog.open(WaitlistDialogComponent, {
             width: '400px'
           });
@@ -277,7 +277,8 @@ export class CalenderComponent implements OnInit, OnDestroy {
               // User wants to join waitlist
               const waitlistBooking = {
                 ...newBooking,
-                waitlist: true
+                waitlist: true,
+                BookingStatus: BookingStatus.Waitlisted
               };
               this.bookingHistoryService.saveBooking(waitlistBooking).subscribe({
                 next: (response: BookingResponse) => {
