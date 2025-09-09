@@ -3,12 +3,12 @@ import { BookingHistory, Guest, WaitList } from '../data/BookingHistory';
 import { BookingStatus } from '../data/BookingStatus';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { CommonModule } from '@angular/common';
+import { CommonModule, formatDate } from '@angular/common';
 import { BookingHistoryService } from '../services/booking-history.service';
 import { WebSocketService, BookingEvent } from '../services/websocket.service';
 import { MatTableModule } from '@angular/material/table';
 import { FormGroup, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatDatepickerModule, MatCalendarCellCssClasses } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatNativeDateModule } from '@angular/material/core';
 import { Booking } from '../data/Booking';
@@ -24,12 +24,9 @@ import { Subscription } from 'rxjs';
 import { BookingResponse } from '../data/BookingResponse';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { WaitlistDialogComponent } from '../shared/waitlist-dialog/waitlist-dialog.component';
-import { MatCalendarCellCssClasses } from '@angular/material/datepicker';
 import { GoogleMapsModule } from '@angular/google-maps';
 import { MatCardModule } from '@angular/material/card';
 import { CarouselModule } from 'ngx-owl-carousel-o';
-import { formatDate } from '@angular/common';
-
 
 @Component({
   selector: 'app-calender',
@@ -55,7 +52,6 @@ import { formatDate } from '@angular/common';
     GoogleMapsModule,
     MatCardModule,
     CarouselModule,
-
   ],
 })
 export class CalenderComponent implements OnInit, OnDestroy {
@@ -64,24 +60,23 @@ export class CalenderComponent implements OnInit, OnDestroy {
   dataSource = new MatTableDataSource<Booking>();
   @ViewChild(MatSort) sort!: MatSort;
 
-  isAdmin = true; // TODO: This should be set based on your authentication logic
+  isAdmin = true; // TODO: wire to your auth logic
 
   booking: Booking[] = [];
   private subscriptions: Subscription[] = [];
   isConnected = false;
 
-  busyDates: Date[] = [
-    new Date(2025, 5, 1), // May 25, 2025
-    new Date(2025, 5, 2), // May 26, 2025
-  ];
-
+  /** Optional: if needed elsewhere; derived from busyDateKeys */
+  busyDates: Date[] = [];
+  /** Source of truth for calendar highlighting */
+  private busyDateKeys = new Set<string>();
 
   bookingForm = new FormGroup({
     fullName: new FormControl('', Validators.required),
     employeeEmail: new FormControl('', [Validators.required, Validators.email]),
     guest: new FormControl(),
-    start: new FormControl(),
-    end: new FormControl(),
+    start: new FormControl<Date | null>(null, Validators.required),
+    end: new FormControl<Date | null>(null, Validators.required),
     BookingStatus: new FormControl(BookingStatus.Submitted)
   });
 
@@ -112,7 +107,6 @@ export class CalenderComponent implements OnInit, OnDestroy {
       title: 'Living Room',
       description: 'Living Room'
     }
-    // Add more images as needed, following the same structure
   ];
 
   currentSlide = 0;
@@ -132,22 +126,20 @@ export class CalenderComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
     this.webSocketService.disconnect();
   }
 
+  // ---------------- Realtime & Connection ----------------
+
   private setupRealtimeUpdates(): void {
     const bookingUpdatesSub = this.webSocketService.getBookingUpdates().subscribe({
-      next: (event: BookingEvent) => {
-        this.handleRealtimeUpdate(event);
-      },
+      next: (event: BookingEvent) => this.handleRealtimeUpdate(event),
       error: (error) => {
         console.error('Error receiving real-time updates:', error);
         this.showNotification('Connection error occurred', 'error');
       }
     });
-
     this.subscriptions.push(bookingUpdatesSub);
   }
 
@@ -155,15 +147,13 @@ export class CalenderComponent implements OnInit, OnDestroy {
     const connectionSub = this.webSocketService.getConnectionStatus().subscribe({
       next: (isConnected: boolean) => {
         this.isConnected = isConnected;
-        if (isConnected) {
-          this.showNotification('Real-time updates connected', 'success');
-        } else {
-          this.showNotification('Real-time updates disconnected', 'warning');
-        }
+        this.showNotification(
+          isConnected ? 'Real-time updates connected' : 'Real-time updates disconnected',
+          isConnected ? 'success' : 'warning'
+        );
         this.cdr.detectChanges();
       }
     });
-
     this.subscriptions.push(connectionSub);
   }
 
@@ -172,27 +162,24 @@ export class CalenderComponent implements OnInit, OnDestroy {
 
     switch (event.type) {
       case 'CREATE':
-        // Add new booking to the table
         this.dataSource.data = [...currentData, event.booking];
         this.showNotification(`New booking created by ${event.booking.fullName}`, 'success');
         this.updateBusyDates();
         break;
 
       case 'UPDATE':
-        // Update existing booking
         const updateIndex = currentData.findIndex(b => b.id === event.booking.id);
         if (updateIndex !== -1) {
           currentData[updateIndex] = event.booking;
           this.dataSource.data = [...currentData];
-          this.showNotification(`Booking updated by ${event.booking.fullName}`, 'error');
+          this.showNotification(`Booking updated by ${event.booking.fullName}`, 'info');
           this.updateBusyDates();
         }
         break;
 
       case 'DELETE':
-        // Remove booking from table
         this.dataSource.data = currentData.filter(b => b.id !== event.booking.id);
-        this.showNotification(`Booking Canceled by ${event.booking.fullName}`, 'error');
+        this.showNotification(`Booking canceled by ${event.booking.fullName}`, 'warning');
         this.updateBusyDates();
         break;
     }
@@ -200,62 +187,138 @@ export class CalenderComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  private updateBusyDates(): void {
-    // Update busy dates based on current bookings
-    this.busyDates = this.dataSource.data.flatMap(booking => {
-      const dates: Date[] = [];
-      const start = new Date(booking.startDate);
-      const end = new Date(booking.endDate);
+  // ---------------- Date Helpers (LOCAL, no UTC conversions) ----------------
 
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        dates.push(new Date(d));
-      }
-      return dates;
+  /** Parse an incoming value (string like '2025-09-27 00:00:00-07' or ISO or Date) as local **date-only** */
+  private parseLocalDateOnly(input: string | Date): Date {
+    if (input instanceof Date) {
+      const d = new Date(input);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
+    const m = String(input).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) {
+      return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    }
+    const d = new Date(input);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }
+
+  /** Local 'YYYY-MM-DD' key (kept purely local to avoid TZ/DST drift) */
+  private toKeyLocal(date: Date | string): string {
+    const d = this.parseLocalDateOnly(date);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  /** End-inclusive or end-exclusive LOCAL day enumeration (use endExclusive=false if the end day is occupied) */
+  private enumerateKeysLocal(start: string | Date, end: string | Date, endExclusive = false): string[] {
+    const s = this.parseLocalDateOnly(start);
+    const e = this.parseLocalDateOnly(end);
+
+    const keys: string[] = [];
+    let cur = new Date(s.getFullYear(), s.getMonth(), s.getDate());
+
+    while (endExclusive ? cur.getTime() < e.getTime() : cur.getTime() <= e.getTime()) {
+      keys.push(this.toKeyLocal(cur));
+      cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() + 1);
+    }
+    return keys;
+  }
+
+  /** Accepts either enum (number), enum name (string), or plain 'Canceled' string */
+  private isCanceled(b: any): boolean {
+    const s = b?.status ?? b?.BookingStatus;
+    if (s == null) return false;
+
+    if (typeof s === 'number') {
+      return s === (BookingStatus as any).Canceled;
+    }
+
+    if (typeof s === 'string') {
+      const lower = s.trim().toLowerCase();
+      const enumCanceledName = (BookingStatus as any)[(BookingStatus as any).Canceled]
+        ?.toString()
+        .toLowerCase?.();
+      return lower === 'canceled' || (enumCanceledName && lower === enumCanceledName);
+    }
+
+    return false;
+  }
+
+  // ---------------- Busy Dates Build & Calendar Hook ----------------
+
+  private updateBusyDates(): void {
+    const keys = new Set<string>();
+
+    for (const booking of this.dataSource.data) {
+      if (this.isCanceled(booking)) continue; // exclude canceled
+
+      // If your end date is a CHECKOUT (not occupied), use endExclusive = true
+      const dayKeys = this.enumerateKeysLocal(booking.startDate, booking.endDate, /*endExclusive*/ false);
+      for (const k of dayKeys) keys.add(k);
+    }
+
+    this.busyDateKeys = keys;
+    // Optional array for any other UI (not needed for dateClass)
+    this.busyDates = [...keys].map(k => {
+      const [y, m, d] = k.split('-').map(Number);
+      return new Date(y, m - 1, d); // local Date at midnight
     });
   }
 
-  private showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info') {
+  dateClass = (date: Date): MatCalendarCellCssClasses => {
+    return this.busyDateKeys.has(this.toKeyLocal(date)) ? 'busy-date' : '';
+  };
 
+  // ---------------- Notifications ----------------
+
+  private showNotification(message: string, type: 'success' | 'error' | 'warning' | 'info') {
     const config = {
       duration: 3000,
       horizontalPosition: 'right' as const,
       verticalPosition: 'top' as const,
       panelClass: [`snackbar-${type}`]
     };
-
     this.snackBar.open(message, 'Close', config);
   }
 
+  // ---------------- Booking Create / Update ----------------
 
   book() {
-    const startDate: Date = this.bookingForm.get('start')?.value;
-    const endDate: Date = this.bookingForm.get('end')?.value;
+    const startDate = this.bookingForm.get('start')?.value as Date | null;
+    const endDate = this.bookingForm.get('end')?.value as Date | null;
 
     if (!startDate || !endDate) {
-      this.showNotification("Start or end date is missing", 'error');
+      this.showNotification('Start or end date is missing', 'error');
       return;
     }
 
     if (!this.bookingForm.valid) {
-      this.showNotification("Please fill in all required fields", 'error');
+      this.showNotification('Please fill in all required fields', 'error');
       return;
     }
+
+    // Send **date-only** strings to avoid timezone rollovers (yyyy-MM-dd)
+    const startStr = formatDate(startDate, 'yyyy-MM-dd', 'en-CA');
+    const endStr = formatDate(endDate, 'yyyy-MM-dd', 'en-CA');
 
     const newBooking = new Booking(
       0,
       this.bookingForm.get('fullName')?.value ?? '',
       this.bookingForm.get('employeeEmail')?.value ?? '',
       this.bookingForm.get('guest')?.value ?? '',
-      startDate.toISOString(),
-      endDate.toISOString(),
+      startStr,
+      endStr,
       this.bookingForm.get('BookingStatus')?.value ?? BookingStatus.Submitted
     );
 
     this.bookingHistoryService.saveBooking(newBooking).subscribe({
       next: (response: BookingResponse) => {
-        this.showNotification(response.message || 'Booking created successfully!',
-          response.success ? 'success' : 'warning');
-
+        this.showNotification(response.message || 'Booking created successfully!', response.success ? 'success' : 'warning');
         if (response.success) {
           this.bookingForm.reset();
           this.getBookingHistory();
@@ -263,35 +326,28 @@ export class CalenderComponent implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Failed to save booking:', err);
-        const errorMessage = err.status === 400
-          ? err.error
-          : err.error?.message || 'Failed to create booking';
+        const errorMessage = err.status === 400 ? err.error : err.error?.message || 'Failed to create booking';
 
-        if (err.error === "Requested dates overlap an existing booking.") {
-          const dialogRef = this.dialog.open(WaitlistDialogComponent, {
-            width: '400px'
-          });
+        if (err.error === 'Requested dates overlap an existing booking.') {
+          const dialogRef = this.dialog.open(WaitlistDialogComponent, { width: '400px' });
 
           dialogRef.afterClosed().subscribe(result => {
             if (result) {
-              // User wants to join waitlist
               const waitlistBooking = {
                 ...newBooking,
                 waitlist: true,
                 BookingStatus: BookingStatus.Waitlisted
               };
               this.bookingHistoryService.saveBooking(waitlistBooking).subscribe({
-                next: (response: BookingResponse) => {
+                next: () => {
                   this.showNotification('Successfully added to waitlist', 'success');
                   this.bookingForm.reset();
                   this.getBookingHistory();
                 },
-                error: (error) => {
-                  this.showNotification('Failed to add to waitlist', 'error');
-                }
+                error: () => this.showNotification('Failed to add to waitlist', 'error')
               });
             } else {
-              this.showNotification('Booking Canceled', 'info');
+              this.showNotification('Booking canceled', 'info');
             }
           });
         } else {
@@ -302,9 +358,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
   }
 
   onEdit(booking: Booking) {
-    // Implement edit functionality
     console.log('Edit booking:', booking);
-    // You would typically open a dialog or navigate to edit form
     this.showNotification('Edit functionality to be implemented', 'info');
   }
 
@@ -333,7 +387,7 @@ export class CalenderComponent implements OnInit, OnDestroy {
     if (confirm(`Are you sure you want to cancel the booking for ${booking.fullName} from ${start} to ${end}?`)) {
       this.bookingHistoryService.UpdateStatus(booking.id, BookingStatus.Canceled).subscribe({
         next: () => {
-          this.showNotification('Booking Canceled successfully!', 'success');
+          this.showNotification('Booking canceled successfully!', 'success');
           this.getBookingHistory();
         },
         error: (err: any) => {
@@ -344,10 +398,11 @@ export class CalenderComponent implements OnInit, OnDestroy {
     }
   }
 
+  // ---------------- Table & Misc ----------------
+
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
-
 
   getBookingHistory() {
     this.bookingHistoryService.getBookingHistory().subscribe({
@@ -366,13 +421,6 @@ export class CalenderComponent implements OnInit, OnDestroy {
     const filterValue = (event.target as HTMLInputElement).value.trim().toLowerCase();
     this.dataSource.filter = filterValue;
   }
-
-  dateClass = (date: Date): MatCalendarCellCssClasses => {
-    const dateString = date.toDateString();
-    const busyDateStrings = this.busyDates.map(d => d.toDateString());
-
-    return busyDateStrings.includes(dateString) ? 'busy-date' : '';
-  };
 
   click(event: google.maps.MapMouseEvent) {
     console.log(event);
